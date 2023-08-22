@@ -1,0 +1,16 @@
+.chart-container .MuiXAxisLabel-root text {
+    fill: #333;
+    transform: rotate(-90deg) translate(0px, -20px);
+    /* Add more styling properties as needed */
+  }
+  .chart-container .bar-label-container text {
+    margin-left: 100px; /* Adjust the margin value as needed */
+    width: 1000px;
+
+  }
+  /* ChartStyles.css */
+/* ChartStyles.css */
+.MuiChartsLegend-root.MuiChartsLegend-row.css-duciqg-MuiChartsLegend-root {
+    width: 300px !important; /* Adjust the width value as needed */
+  }
+  
