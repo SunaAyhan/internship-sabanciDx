@@ -6,8 +6,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const DashboardContainer = styled.div`
- 
- height: 200vh;
+  height: 100vh;
   padding: 2rem;
   background-color: #FFFFFF;
 `;
@@ -15,25 +14,16 @@ const DashboardContainer = styled.div`
 const MenuItemContainer = styled.div`
   display: flex;
   align-items: center;
-  padding: 3px;
+  padding: 8px;
   cursor: pointer;
-  border-radius: 12px;
-  height: 5vh;
- 
-`;const URLMenuItemContainer = styled.div`
-  background-color: #44D2F1;
-  margin-bottom: 1rem;
-
-  border-radius: 5px;
+  border-radius: 8px;
+  height: 8vh;
 `;
 
 const FirstMenuItemContainer = styled(MenuItemContainer)`
   background-color: #0E0B9B;
-  
-
+  height: 4vh;
 `;
-
-
 
 const MenuItemText = styled.p`
   font-weight: medium;
@@ -41,6 +31,7 @@ const MenuItemText = styled.p`
   font-size: 16px;
   color: #808191;
   margin-left: 8px;
+  font-family: Poppins;
 `;
 
 const IconContainer = styled.div`
@@ -49,44 +40,57 @@ const IconContainer = styled.div`
   color: #808191; 
 `;
 
+const ResponsiveDashboardContainer = styled(DashboardContainer)`
+  padding: 1rem;
+
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+  }
+`;
+
+const ResponsiveMenuItemContainer = styled(MenuItemContainer)`
+  height: 6vh;
+
+  @media (max-width: 768px) {
+    height: 4vh;
+  }
+`;
+
 const Dashboard = () => {
   return (
-    <DashboardContainer>
-      <URLMenuItemContainer>
-        <MenuItemText style={{ color: '#ffffff' }}> localhost:3000</MenuItemText>
-      </URLMenuItemContainer>
+    <ResponsiveDashboardContainer>
       <FirstMenuItemContainer>
-        <MenuItemText style={{ color: '#ffffff' }}>All Page Avarage</MenuItemText>
+        <MenuItemText style={{ color: '#ffffff' }}>All Page Average</MenuItemText>
       </FirstMenuItemContainer>
-      
-      <MenuItemContainer>
+
+      <ResponsiveMenuItemContainer>
         <IconContainer>
           <HomeIcon />
         </IconContainer>
         <MenuItemText>Home Page</MenuItemText>
-      </MenuItemContainer>
-      
-      <MenuItemContainer>
+      </ResponsiveMenuItemContainer>
+
+      <ResponsiveMenuItemContainer>
         <IconContainer>
           <InfoIcon />
         </IconContainer>
         <MenuItemText>About</MenuItemText>
-      </MenuItemContainer>
-      
-      <MenuItemContainer>
+      </ResponsiveMenuItemContainer>
+
+      <ResponsiveMenuItemContainer>
         <IconContainer>
           <CategoryIcon />
         </IconContainer>
         <MenuItemText>Products</MenuItemText>
-      </MenuItemContainer>
-      
-      <MenuItemContainer>
+      </ResponsiveMenuItemContainer>
+
+      <ResponsiveMenuItemContainer>
         <IconContainer>
           <AccountCircleIcon />
         </IconContainer>
         <MenuItemText>Account</MenuItemText>
-      </MenuItemContainer>
-    </DashboardContainer>
+      </ResponsiveMenuItemContainer>
+    </ResponsiveDashboardContainer>
   );
 };
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
+import styled from 'styled-components';
 
 const years = [
   new Date(1990, 0, 1),
@@ -53,10 +54,18 @@ const GermanyGDPperCapita = [
   36205.574, 38014.137, 39752.207, 40715.434, 38962.938, 41109.582, 43189, 43320,
   43413, 43922, 44293, 44689, 45619.785, 46177.617,
 ];
+  const ResponsiveContainer = styled.div`
+  width: 100%; /* Set the container to full width */
+`;
 
 export default function StackedAreas() {
+  const customColors = ['#e68b89','#4e92da','#b27de3']; 
+  const containerRef = React.useRef(null);
+
+
+
   return (
-    <LineChart
+    <ResponsiveContainer>  <LineChart
       xAxis={[
         {
           id: 'Years',
@@ -65,6 +74,8 @@ export default function StackedAreas() {
           valueFormatter: (date) => date.getFullYear(),
         },
       ]}
+      colors={customColors}
+
       series={[
         {
           id: 'LCP',
@@ -91,9 +102,10 @@ export default function StackedAreas() {
       sx={{
         '--ChartsLegend-itemWidth': '200px',
       }}
-      width={1000}
+    
       height={400}
-      margin={{ left: 70 }}
-    />
+     
+    /></ResponsiveContainer>
+  
   );
 }
