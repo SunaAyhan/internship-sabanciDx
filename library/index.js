@@ -75,6 +75,8 @@ async function measurePerformance() {
         
         domContentLoadedEventTime: domContentLoadedEventTime,
         paintEntries:paintEntries,
+        fcp: paintEntries[1].startTime,
+        firstPaint: paintEntries[0].startTime,
         loadEventTime: loadEventTime,
         resources: resources,
         navigationType: navigationType,

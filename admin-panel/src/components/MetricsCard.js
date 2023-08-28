@@ -1,51 +1,45 @@
-import { Button, Card, Grid,Modal, Paper  } from "@mui/material";
-import React , { useState, useRef, useEffect } from "react";
+import { Button, Card, Grid, Modal, Paper } from "@mui/material";
+import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { LineChart } from "@mui/x-charts/LineChart";
-
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 const StyledCard = styled(Card)`
   padding: 16px;
   border-radius: 16px !important;
   box-shadow: none !important;
-
+  width: 100% !important;
 `;
 const DetailButton = styled(Button)`
-&&{
-      
-  border-radius: 8px;
-  box-shadow: none;
-  align-items:center;
-  justify-content:center;
-  text-transform: none;
-  background-color: #b27de3;
-  color: #ffffff;
-  padding: 0px;
-  width: 100%;
-  font-family: Poppins;
-
-
- &:hover {
-      background-color: #0E0B9B; 
-      
+  && {
+    border-radius: 8px;
+    box-shadow: none;
+    align-items: center;
+    justify-content: center;
+    text-transform: none;
+    background-color: #b27de3;
+    color: #ffffff;
+    padding: 0px;
+    width: 100%;
+    font-family: Poppins;
+    letter-spacing: -1px;
+    &:hover {
+      background-color: #0e0b9b;
     }
-}
-
-
+  }
 `;
 const MetricName = styled.p`
-  color: #0e0b9b;
-  font-size: 24px;
+  color: #00000;
+  font-size: 16px;
   font-weight: bold;
-  align-items:center;
-  justify-content:center;
+  align-items: center;
+  justify-content: center;
   margin: 0px;
   text-align: center;
   font-family: Poppins;
 `;
 const MetricValue = styled.p`
-  color: #0e0b9b;
-  font-size: 24px;
+  color: #00000;
+  font-size: 16px;
   font-weight: bold;
   margin: 0px;
   font-family: Poppins;
@@ -68,17 +62,17 @@ const PopupCard = styled(Paper)`
 `;
 const customTooltipStyles = {
   tooltip: {
-    background: "black",
+    background: "pink",
     border: "1px solid #ccc",
     borderRadius: "4px",
     color: "#333",
     padding: "8px",
     boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
     fontSize: "14px",
-    zIndex:"10000 !important"
+    zIndex: "10000 !important",
   },
 };
-const MetricsCard = () => {
+const MetricsCard = ({ title, data, fullData, field }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDetailClick = () => {
@@ -88,64 +82,115 @@ const MetricsCard = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-  
+
+  const valueFormatter = (date) =>
+    date.getHours() === 0
+      ? date.toLocaleDateString("fr-FR", {
+          month: "2-digit",
+          day: "2-digit",
+        })
+      : date.toLocaleTimeString("fr-FR", {
+          hour: "2-digit",
+        });
 
   return (
     <div>
+      {" "}
       <StyledCard>
-        <Grid container spacing={2} alignItems={'center'} style={{
-             alignItems:'center',
-             justifyContent:'center',
-             display:'flex',
-             marginBottom:'16px'
-        }} >
-          <Grid item >
-              <MetricName>FCP:</MetricName>
-            </Grid>
-            <Grid
-              item
-            >
-              <MetricValue>110</MetricValue>
-            </Grid>
+        <Grid
+          container
+          spacing={2}
+          alignItems="center"
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            display: "flex",
+            marginBottom: "16px",
+          }}
+        >
+          <Grid item>
+            <MetricName>{title}</MetricName>
           </Grid>
-          <Grid container style={{
-            justifyContent:'center', alignItems:'center', display:'flex'
-          }} > <DetailButton onClick={handleDetailClick} >Detail <ArrowOutwardIcon style={{
-            marginLeft:'8px'
-          }} /> </DetailButton></Grid>
-         
-          {/* <Grid item xs={8}>
-            <BasicPie />
-          </Grid> */}
-       
+          <Grid item>
+            {data ? (
+              <MetricValue>{Math.floor(data)}</MetricValue>
+            ) : (
+              <MetricValue>No Data</MetricValue>
+            )}
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            display: "flex",
+          }}
+        >
+          <DetailButton onClick={handleDetailClick}>
+            Detail{" "}
+            <TrendingUpIcon
+              style={{
+                marginLeft: "8px",
+              }}
+            />{" "}
+          </DetailButton>
+        </Grid>
       </StyledCard>
-      <Modal open={isModalOpen} onClose={handleCloseModal} onClick={handleCloseModal}>
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0, 0, 0, 0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
+      <Modal
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        style={{
+          zIndex: "0",
+        }}
+      >
+       
           <PopupCard>
-            <ChartContainer>
+            {fullData.length > 0 ? (
               <LineChart
-                xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
+                xAxis={[
+                  {
+                    data: [
+                      new Date(
+                        `${fullData[3]?._id?.month}.${fullData[3]?._id?.day}.${fullData[3]?._id?.year}`
+                      ),
+                      new Date(
+                        `${fullData[2]?._id?.month}.${fullData[2]?._id?.day}.${fullData[2]?._id?.year}`
+                      ),
+                      new Date(
+                        `${fullData[1]?._id?.month}.${fullData[1]?._id?.day}.${fullData[1]?._id?.year}`
+                      ),
+                      new Date(
+                        `${fullData[0]?._id?.month}.${fullData[0]?._id?.day}.${fullData[0]?._id?.year}`
+                      ),
+                    ],
+                    scaleType: "time",
+                    valueFormatter,
+                  },
+                ]}
                 series={[
                   {
-                    data: [2, 5.5, 2, 8.5, 1.5, 5],
+                    data: [
+                      fullData[3]?.[field] || 0,
+                      fullData[2]?.[field] || 0,
+                      fullData[1]?.[field] || 0,
+                      fullData[0]?.[field] || 0,
+                    ],
                     area: true,
-                    color:'#e68b89'
-
+                    color: "#b27de3",
                   },
                 ]}
                 width={500}
                 height={300}
-                
                 options={{
-                  series: {
-                    tooltip: customTooltipStyles.tooltip,
-                    zIndex: 1500,
-                  },
+                  series: {},
                 }}
               />
-            </ChartContainer>
+            ) : (
+              ""
+            )}
           </PopupCard>
-        </div>
+       
       </Modal>
     </div>
   );

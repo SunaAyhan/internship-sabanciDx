@@ -45,6 +45,18 @@ async function connectDatabase() {
       reply.status(500).send({ success: false, message: 'Veri kaydedilirken bir hata oluştu.' });
     }
   });
+  fastify.get('/get-performance-data', async (request, reply) => {
+    const db = await connectDatabase();
+    const performanceData = db.collection('performance_metrics');
+    
+    try {
+        const data = await performanceData.find().toArray();
+        reply.send({ success: true, data });
+    } catch (err) {
+        reply.status(500).send({ success: false, message: 'Veri alınırken bir hata oluştu.' });
+    }
+});
+
   
   fastify.listen({ port: 3000 }, (err) => {
     if (err) {

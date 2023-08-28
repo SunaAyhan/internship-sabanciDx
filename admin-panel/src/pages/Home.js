@@ -9,9 +9,12 @@ import BarsDataset from "../components/BarChart";
 import StackedAreas from "../components/LineChart";
 import MetricsCard from "../components/MetricsCard";
 import GoogleFontLoader from "react-google-font-loader";
+import React, { useState, useRef, useEffect } from "react";
+
+import axios from "axios";
 
 const Title = styled.p`
-  color: #0e0b9b;
+  color: #000000;
   font-size: 23px;
   font-weight: bold;
   font-family: Poppins;
@@ -40,8 +43,22 @@ const GraphCard = styled(Card)`
   }
 `;
 
+
 const Home = () => {
   const isMobile = window.innerWidth <= 600; // You can adjust the breakpoint as needed
+  const [performanceData, setPerformanceData] = useState(["why"]);
+useEffect(() => {
+      axios
+    .get("http://localhost:3000/get-daily-avarage")
+    .then((response) => {
+      setPerformanceData(response.data.data);
+      console.log("response")
+    })
+    .catch((error) => {
+      console.error("API Error:", error);
+    });
+}, []);
+console.log(performanceData);
 
   return (
     <div>
@@ -61,10 +78,7 @@ const Home = () => {
       <ButtonAppBar />
       <Grid container spacing={2} alignItems="flex-start">
      
-        {/* <Grid item xs={2} sm={2} md={2} lg={2}   >
-          <Dashboard  />
-        </Grid>
-          */}
+     
         <Grid item xs={12} sm={12} md={12} lg={12}>
           <Container
             style={{
@@ -78,39 +92,60 @@ const Home = () => {
                 marginBottom: "1rem",
               }}
               container
-              spacing={2}
+             
             >
-              <Grid item xs={12} sm={6} md={3} lg={3}>
-                <MetricsCard />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={3}>
-                <MetricsCard />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={3}>
-                <MetricsCard />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={3}>
-                <MetricsCard />
-              </Grid>
+           <Grid container spacing={2}>
+            <Grid item xs={6}  sm={6} md={3} lg={3} >
+                   <MetricsCard title="LCP:" data={performanceData[0].avgLCP} fullData={performanceData} field={"avgLCP"} />
             </Grid>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3} lg={3}>
-                <MetricsCard />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={3}>
-                <MetricsCard />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={3}>
-                <MetricsCard />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={3}>
-                <MetricsCard />
-              </Grid>
+            <Grid item xs={6}  sm={6} md={3} lg={3} >
+                   <MetricsCard title="DNS Time:" data={performanceData[0].avgDnsTime} fullData={performanceData} field={"avgDnsTime"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="Connection Time:" data={performanceData[0].avgConnectionTime} fullData={performanceData} field={"avgConnectionTime"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="Response Time:" data={performanceData[0].avgResponseTime} fullData={performanceData} field={"avgResponseTime"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="Dom Content Loaded:" data={performanceData[0].avgDomContentLoadedEventTime} fullData={performanceData} field={"avgDomContentLoadedEventTime"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="First Contentful Paint:" data={performanceData[0].avgFCP} fullData={performanceData} field={"avgFCP"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="First Paint:" data={performanceData[0].avgFirstPaint} fullData={performanceData} field={"avgFirstPaint"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="Load Event Time:" data={performanceData[0].avgLoadEventTime} fullData={performanceData} field={"avgLoadEventTime"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="Navigation Type:" data={performanceData[0].avgNavigationType} fullData={performanceData} field={"avgNavigationType"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="Redirect Count:" data={performanceData[0].avgRedirectCount} fullData={performanceData} field={"avgRedirectCount"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="Navigation Start:" data={performanceData[0].avgNavigationStartTime} fullData={performanceData} field={"avgNavigationStartTime"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="Navigation End Time:" data={performanceData[0].avgNavigationEndTime} fullData={performanceData} field={"avgNavigationEndTime"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="TTFB:" data={performanceData[0].avgTTFB} fullData={performanceData} field={"avgTTFB"}/>
+            </Grid>
+            <Grid item xs={6} sm={6} md={3} lg={3} >
+                   <MetricsCard title="Code Execution Time:" data={performanceData[0].avgCodeExecutionTime} fullData={performanceData} field={"avgCodeExecutionTime"}/>
+            </Grid>
+           </Grid>
+           
+         
+              
             </Grid>
             <Grid style={{
-              marginTop:'48px'
+              marginTop:'64px'
             }} conainer>
-              <Title>Metric Values Change</Title>
+              <Title>Metric Values Change by Months</Title>
               <GraphCard>
                 <StackedAreas />
               </GraphCard>
