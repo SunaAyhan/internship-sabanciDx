@@ -108,12 +108,13 @@ const MetricsCard = ({ title, data, fullData, field }) => {
             marginBottom: "16px",
           }}
         >
-          <Grid item>
+          <Grid item xs={12} >
             <MetricName>{title}:</MetricName>
           </Grid>
+          <br/>
           <Grid item>
             {data ? (
-              <MetricValue>{Math.floor(data)}</MetricValue>
+              <MetricValue>{Math.floor(data)}  </MetricValue>
             ) : (
               <MetricValue>No Data</MetricValue>
             )}
