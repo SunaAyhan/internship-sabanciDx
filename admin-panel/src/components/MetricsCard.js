@@ -109,7 +109,7 @@ const MetricsCard = ({ title, data, fullData, field }) => {
           }}
         >
           <Grid item>
-            <MetricName>{title}</MetricName>
+            <MetricName>{title}:</MetricName>
           </Grid>
           <Grid item>
             {data ? (
@@ -147,6 +147,7 @@ const MetricsCard = ({ title, data, fullData, field }) => {
        
           <PopupCard>
             {fullData.length > 0 ? (
+              <div> <h3>{title}</h3>
               <LineChart
                 xAxis={[
                   {
@@ -185,7 +186,8 @@ const MetricsCard = ({ title, data, fullData, field }) => {
                 options={{
                   series: {},
                 }}
-              />
+              /></div>
+                
             ) : (
               ""
             )}
