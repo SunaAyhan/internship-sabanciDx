@@ -81,9 +81,7 @@ console.log(performanceData);
      
         <Grid item xs={12} sm={12} md={12} lg={12}>
           <Container
-            style={{
-              padding: "16px",
-            }}
+           
           >
             {" "}
             <Title>Daily Avarage Performance</Title>

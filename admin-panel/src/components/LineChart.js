@@ -71,15 +71,99 @@ if(performanceData.length > 1)
                     data: performanceData.map(({avgLCP}) => (avgLCP)),
                     area: true,
                     color: "#b27de3",
+                    label: "LCP",
+                    stack: 'total',
                   },
                   {
-                    data: performanceData.map(({avgLCP}) => (avgLCP)),
+                    data: performanceData.map(({avgDnsTime}) => (avgDnsTime)),
                     area: true,
-                    color: "#b27de3",
+                    color: "#7de3c1",
+                    label: "Dns",
+                    stack: 'total',
+
+                  },
+                  {
+                    data: performanceData.map(({avgConnectionTime}) => (avgConnectionTime)),
+                    area: true,
+                    color: "#e3c27d",
+                    label: "Connection",
+                    stack: 'total',
+                  },
+                  {
+                    data: performanceData.map(({avgResponseTime}) => (avgResponseTime)),
+                    area: true,
+                    color: "#7d90e3", 
+                    label: "Response",
+                    stack: 'total',
+                  },
+                  {
+                    data: performanceData.map(({avgDomContentLoadedEventTime}) => (avgDomContentLoadedEventTime)),
+                    area: true,
+                    color: "#7de3a7", 
+                    label: "Dom Content",
+                    stack: 'total',
+                  },
+                  {
+                    data: performanceData.map(({avgFCP}) => (avgFCP)),
+                    area: true,
+                    color: "#dbe37d", 
+                    label: "Dom Content",
+                    stack: 'total',
+                  },
+                  {
+                    data: performanceData.map(({avgLoadEventTime}) => (avgLoadEventTime)),
+                    area: true,
+                    color: "#e3a47d", 
+                    label: "Load Event",
+                    stack: 'total',
+                  },
+                  {
+                    data: performanceData.map(({avgRedirectCount}) => (avgRedirectCount)),
+                    area: true,
+                    color: "#e3a47d", 
+                    label: "Redirect Count",
+                    stack: 'total',
+                  },
+                  {
+                    data: performanceData.map(({avgNavigationStartTime}) => (avgNavigationStartTime)),
+                    area: true,
+                    color: "#84e37d", 
+                    label: "Navigation Start",
+                    stack: 'total',
+                  },
+                  {
+                    data: performanceData.map(({avgNavigationEndTime}) => (avgNavigationEndTime)),
+                    area: true,
+                    color: "#e38d7d", 
+                    label: "Navigation End",
+                    stack: 'total',
+                  },
+                  {
+                    data: performanceData.map(({avgTTFB}) => (avgTTFB)),
+                    area: true,
+                    color: "#7de3ab", 
+                    label: "TTFB",
+                    stack: 'total',
+                  },
+                  {
+                    data: performanceData.map(({avgCodeExecutionTime}) => (avgCodeExecutionTime)),
+                    area: true,
+                    color: "#7d85e3", 
+                    label: "Code Execution",
+                    stack: 'total',
                   },
                 ]}
-                width={500}
-                height={300}
+                width={1000}
+                height={400}
+                sx={{
+                  '--ChartsLegend-itemWidth': '120px',
+                  '--ChartsLegend-rootSpacing':'20px',
+                  '--ChartsLegend-itemMarkSize':'20px',
+                  '--ChartsLegend-labelSpacing':'2px',
+                 
+
+                }}
+                
                 options={{
                   series: {},
                 }}
