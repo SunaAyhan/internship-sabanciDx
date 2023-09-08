@@ -11,12 +11,14 @@ import {
 import React, { useEffect, useState } from "react";
 import ButtonAppBar from "../components/AppBar";
 import styled from "styled-components";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
+import { Navigation } from "@mui/icons-material";
 
 const CardList = styled(Card)`
   padding: 24px;
   height: 100%;
   font-family: Poppins;
-
 `;
 const CardAdd = styled(Card)`
   padding: 24px;
@@ -25,29 +27,38 @@ const LinkItem = styled.a`
   color: #fffff;
   background-color: #b27de3;
   margin-top: 8px;
-  
+
   &:hover {
-    background-color: #0E0B9B; 
+    background-color: #0e0b9b;
     cursor: pointer;
   }
 `;
 const ButtonAdd = styled(Button)`
-&&&{
-  
-  padding: 16px;
-  color: #ffff;
+  &&& {
+    padding: 16px;
+    color: #ffff;
+    background-color: #b27de3;
+    text-transform: none;
+    margin-top: 16px;
+
+    &:hover {
+      background-color: #0e0b9b;
+      cursor: pointer;
+    }
+  }
+`;
+const ButtonUrl = styled(Button)`
+  &&& {
+    color: #ffffff;
   background-color: #b27de3;
+  margin-top: 8px;
   text-transform: none;
-  margin-top: 16px;
-  
 
   &:hover {
-    background-color: #0E0B9B; 
+    background-color: #0e0b9b;
     cursor: pointer;
   }
-
-}
- 
+  }
 `;
 function generateRandomCode() {
   const characters =
@@ -68,6 +79,7 @@ function Property() {
   const [urlInput, setUrlInput] = useState(""); // Kullanıcıdan URL girişini saklamak için state
   const [uniqueCode, setUniqueCode] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [token, setToken] = useState("");
 
   const handleAddProperty = () => {
     // Yeni bir property eklemek için kullanılacak fonksiyon
@@ -81,7 +93,7 @@ function Property() {
   };
 
   const handleUrlInputChange = (event) => {
-    setUrlInput(event.target.value); // Input değerini state'e kaydedin
+    setUrlInput(event.target.value);
   };
 
   const addPropertyToDatabase = async (url, code) => {
@@ -93,12 +105,14 @@ function Property() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ url, code }),
+          body: JSON.stringify({ url, code, token }),
         }
       );
 
       if (response.ok) {
         console.log("Property added to the database successfully.");
+        setUniqueCode(code);
+        setOpenModal(true);
       } else {
         console.error("Failed to add property to the database.");
       }
@@ -107,23 +121,17 @@ function Property() {
     }
   };
 
-  // handleGenerateCode işlevini güncelleyin
   const handleGenerateCode = () => {
-    // Kullanıcının girdiği URL'i alın
     const url = urlInput.trim();
 
-    // URL boşsa işlem yapmayın
     if (!url) {
       return;
     }
 
     const randomCode = generateRandomCode();
-    const codeWithUrl = url + "/" + randomCode; // URL ile rastgele kodu birleştirin
-    setUniqueCode(codeWithUrl);
-    setOpenModal(true);
 
     // Veriyi veritabanına ekleyin
-    addPropertyToDatabase(url, codeWithUrl);
+    addPropertyToDatabase(url, randomCode);
   };
   const handleCloseModal = () => {
     setOpenModal(false);
@@ -143,9 +151,22 @@ function Property() {
         );
       });
   };
+  const navigate = useNavigate();
+
   useEffect(() => {
+    const token = Cookies.get("token");
+    if (!token) {
+      navigate("/login");
+    }
+    setToken(token);
     // Veritabanından verileri çekmek için bir API isteği yapın (örneğin, GET isteği ile)
-    fetch("http://localhost:3000/performance_data/entities")
+    fetch("http://localhost:3000/performance_data/getentities", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token }),
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("HTTP Hatası: " + response.status);
@@ -177,23 +198,28 @@ function Property() {
           <Grid item md={2} />
           <Grid item md={4}>
             <CardList>
-              <h1 style={{
-                    fontFamily: "Poppins"
-
-              }} >My Properties</h1>
+              <h1
+                style={{
+                  fontFamily: "Poppins",
+                }}
+              >
+                My Properties
+              </h1>
               <ul>
                 {properties.map((property) => (
-                  <li key={property._id}>
+                  <p key={property._id}>
                     {" "}
-                    <LinkItem href="/home">{property.url}</LinkItem>{" "}
-                  </li>
+                    <ButtonUrl onClick={() => {
+          navigate('/home?code='+property.code);
+        }}>{property.url}</ButtonUrl>{" "}
+                  </p>
                   // Yukarıdaki kod, veritabanından gelen URL'leri My Properties listesine ekler
                 ))}
               </ul>
             </CardList>
           </Grid>
           <Grid item md={4}>
-            <CardAdd  >
+            <CardAdd>
               {" "}
               <h1>Add Property</h1>
               <TextField
@@ -202,14 +228,17 @@ function Property() {
                 fullWidth
                 value={urlInput}
                 onChange={handleUrlInputChange}
-               
               />
-              <div style={{
-              justifyContent: "center",
-              alignItems: "center",
-              display: "flex"
-            }} >   <ButtonAdd onClick={handleGenerateCode}>Add</ButtonAdd></div>
-           
+              <div
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                {" "}
+                <ButtonAdd onClick={handleGenerateCode}>Add</ButtonAdd>
+              </div>
             </CardAdd>
           </Grid>
         </Grid>

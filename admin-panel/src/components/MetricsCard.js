@@ -152,32 +152,14 @@ const MetricsCard = ({ title, data, fullData, field }) => {
               <LineChart
                 xAxis={[
                   {
-                    data: [
-                      new Date(
-                        `${fullData[3]?._id?.month}.${fullData[3]?._id?.day}.${fullData[3]?._id?.year}`
-                      ),
-                      new Date(
-                        `${fullData[2]?._id?.month}.${fullData[2]?._id?.day}.${fullData[2]?._id?.year}`
-                      ),
-                      new Date(
-                        `${fullData[1]?._id?.month}.${fullData[1]?._id?.day}.${fullData[1]?._id?.year}`
-                      ),
-                      new Date(
-                        `${fullData[0]?._id?.month}.${fullData[0]?._id?.day}.${fullData[0]?._id?.year}`
-                      ),
-                    ],
-                    scaleType: "time",
-                    valueFormatter,
+                    data: fullData.map(({ _id }) => (`${_id?.month}.${_id?.day}.${_id?.year}` )),
+                    scaleType: "point",
+                    
                   },
                 ]}
                 series={[
                   {
-                    data: [
-                      fullData[3]?.[field] || 0,
-                      fullData[2]?.[field] || 0,
-                      fullData[1]?.[field] || 0,
-                      fullData[0]?.[field] || 0,
-                    ],
+                    data: fullData.map((data) => (data?.[field])),
                     area: true,
                     color: "#b27de3",
                   },

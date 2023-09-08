@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import Cookies from "js-cookie";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -53,8 +54,10 @@ function Login() {
       });
 
       if (response.ok) {
-        // Başarılı giriş durumunda başka bir sayfaya yönlendirin veya başka bir işlem yapın
-        navigate("/properties");
+        const data = await response.json();
+        Cookies.set('token', data.token);
+        navigate('/properties')
+
       } else {
         // Başarısız giriş durumunda hata mesajını gösterin
         const data = await response.json();

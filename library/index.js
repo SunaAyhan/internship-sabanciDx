@@ -1,6 +1,19 @@
 console.log("loading..");
+let queryString = ""; // Daha genel bir kapsamda tanımlanmış
 
 async function measurePerformance() {
+ // script
+ const scriptTag = document.querySelector("script[src]");
+
+ if (scriptTag) {
+   const scriptSrc = scriptTag.getAttribute("src");
+   const queryStringIndex = scriptSrc.indexOf("?");
+   
+   if (queryStringIndex !== -1) {
+     queryString = scriptSrc.substring(queryStringIndex + 1);
+   }
+ }
+ console.log("query:", queryString )
   const navigationEntries = performance.getEntriesByType("navigation");
 
   if (navigationEntries.length > 0) {
@@ -86,6 +99,7 @@ async function measurePerformance() {
         url: url,
         timestamp: timestamp,
       };
+      performanceData.queryString = queryString;
 
       const ttfb = navigationEntry.responseStart - navigationEntry.requestStart;
       performanceData.ttfb = ttfb;

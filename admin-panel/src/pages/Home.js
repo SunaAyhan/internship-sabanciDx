@@ -4,12 +4,13 @@ import Dashboard from "../components/Dashboard";
 import ButtonAppBar from "../components/AppBar";
 import DoughnutChart from "../components/DoughnutChart";
 import BasicPie from "../components/DoughnutChart";
-import { JsonFunction } from "react-router-dom";
+import { JsonFunction, useLocation, useNavigate } from "react-router-dom";
 import BarsDataset from "../components/BarChart";
 import StackedAreas from "../components/LineChart";
 import MetricsCard from "../components/MetricsCard";
 import GoogleFontLoader from "react-google-font-loader";
 import React, { useState, useRef, useEffect } from "react";
+import Cookies from "js-cookie";
 
 import axios from "axios";
 
@@ -45,18 +46,40 @@ const GraphCard = styled(Card)`
 
 
 const Home = () => {
+  const location = useLocation();
+  const code=new URLSearchParams(location.search).get('code')
+  console.log(code);
+
   const isMobile = window.innerWidth <= 600; // You can adjust the breakpoint as needed
-  const [performanceData, setPerformanceData] = useState(["null"]);
+  const [performanceData, setPerformanceData] = useState([]);
+
+  const token = Cookies.get("token");
+
+  const navigate = useNavigate();
+
 useEffect(() => {
+  if(!code){
+    navigate('/properties')
+  }else{
+  if (!token) {
+    navigate("/login");
+  }
+
       axios
-    .get("http://localhost:3000/get-daily-avarage")
+    .post("http://localhost:3000/get-daily-avarage",
+    {
+      code:code,
+      token:token
+    })
     .then((response) => {
-      setPerformanceData(response.data.data);
-      console.log("response")
+      if(response.data.dataPerf){
+        setPerformanceData(response.data.dataPerf);
+        console.log("response")}
+
     })
     .catch((error) => {
       console.error("API Error:", error);
-    });
+    });}
 }, []);
 console.log(performanceData);
 
@@ -92,9 +115,12 @@ console.log(performanceData);
               container
              
             >
+            {performanceData.length > 0? (
+              
            <Grid container spacing={2}>
             <Grid item xs={6}  sm={6} md={3} lg={3} >
                    <MetricsCard title="LCP" data={performanceData[0].avgLCP} fullData={performanceData} field={"avgLCP"} />
+                 
             </Grid>
             <Grid item xs={6}  sm={6} md={3} lg={3} >
                    <MetricsCard title="DNS Time" data={performanceData[0].avgDnsTime} fullData={performanceData} field={"avgDnsTime"}/>
@@ -135,8 +161,8 @@ console.log(performanceData);
             <Grid item xs={6} sm={6} md={3} lg={3} >
                    <MetricsCard title="Code Execution Time" data={performanceData[0].avgCodeExecutionTime} fullData={performanceData} field={"avgCodeExecutionTime"}/>
             </Grid>
-           </Grid>
-           
+           </Grid>):''
+           }
          
               
             </Grid>
@@ -145,7 +171,7 @@ console.log(performanceData);
             }} conainer>
               <Title>Metric Values Change by Weeks</Title>
               <GraphCard>
-                <StackedAreas fullData={performanceData} fieldLCP={"avgLCP"} />
+                <StackedAreas code={code} token={token} />
               </GraphCard>
             </Grid>
           </Container>

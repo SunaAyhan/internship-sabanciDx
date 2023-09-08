@@ -4,43 +4,34 @@ import styled from "styled-components";
 import axios from "axios";
 
 import GoogleFontLoader from "react-google-font-loader";
-const months = [
-  new Date(2023, 0, 1),
-  new Date(2023, 1, 1),
-  new Date(2023, 2, 1),
-  new Date(2023, 3, 1),
 
-];
-
-const LCPGDPperCapita = [
-  28129, 28294.264, 28619.805, 28336.16
-].map((value) => Math.round(value));
-
-const UKGDPperCapita = [
-].map((value) => Math.round(value));
-
-const GermanyGDPperCapita = [
-  25391, 26769.96, 27385.055, 27250.701
-].map((value) => Math.round(value));
 const ResponsiveContainer = styled.div`
   width: 100%; 
 `;
 
-export default function StackedAreas() {
+export default function StackedAreas({
+  code, token
+}) {
 
-  const [performanceData, setPerformanceData] = React.useState(["null"]);
+  const [performanceData, setPerformanceData] = React.useState([]);
 React.useEffect(() => {
       axios
-    .get("http://localhost:3000/get-weekly-average")
+    .post("http://localhost:3000/get-weekly-average",
+     {
+      code:code,
+      token:token
+     }
+    )
     .then((response) => {
-      setPerformanceData(response.data.data);
-      console.log("response")
+      if(response.data.dataPerf){
+      setPerformanceData(response.data.dataPerf);
+      console.log("response")}
     })
     .catch((error) => {
       console.error("API Error:", error);
     });
 }, []);
-if(performanceData.length > 1)
+if(performanceData.length > 0)
   return (
     <ResponsiveContainer>
       {" "}
@@ -57,7 +48,7 @@ if(performanceData.length > 1)
         ]}
         subsets={["cyrillic-ext", "greek"]}
       />{" "}
-      {performanceData.length > 1 ? (
+      {performanceData.length > 0 ? (
               <div> 
               <LineChart
                 xAxis={[

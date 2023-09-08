@@ -1,6 +1,8 @@
 const fastify = require("fastify")();
 const { MongoClient } = require("mongodb");
 const bcrypt = require('bcryptjs');
+var jwt = require('jsonwebtoken');
+const secret = "meraklaCesaretleBirlikte18u2"
 const saltRounds = 1;
 async function connectDatabase() {
   const url = "mongodb://localhost:27017";
@@ -37,6 +39,7 @@ fastify.register(require("@fastify/cors"), (instance) => {
 
 fastify.register(async function (fastify) {
   fastify.post("/save-performance-data", async (request, reply) => {
+
     const db = await connectDatabase();
     const performanceData = db.collection("performance_metrics");
     const data = request.body;
@@ -57,13 +60,16 @@ fastify.register(async function (fastify) {
   });
 });
 
-fastify.get("/get-performance-data", async (request, reply) => {
+fastify.post("/get-performance-data", async (request, reply) => {
+  
   const db = await connectDatabase();
   const performanceData = db.collection("performance_metrics");
 
   try {
-    const data = await performanceData.find().sort({ _id: -1 }).toArray();
-    reply.send({ success: true, data });
+    const data = request.body;
+    var decoded = jwt.verify(data.token, secret);
+    const dataPerf = await performanceData.find({code:data.code}).sort({ _id: -1 }).toArray();
+    reply.send({ success: true, dataPerf });
   } catch (err) {
     reply
       .status(500)
@@ -71,10 +77,16 @@ fastify.get("/get-performance-data", async (request, reply) => {
   }
 });
 
-fastify.get("/get-daily-avarage", async (request, reply) => {
+fastify.post("/get-daily-avarage", async (request, reply) => {
   const db = await connectDatabase();
   const performanceData = db.collection("performance_metrics");
+  const data = request.body;
   const dailyAvaragePipeline = [
+    {
+      $match:{
+        queryString: data.code,
+      },
+    },
     {
       $group: {
         _id: {
@@ -82,7 +94,6 @@ fastify.get("/get-daily-avarage", async (request, reply) => {
           month: { $month: "$timestamp" },
           day: { $dayOfMonth: "$timestamp" },
         },
-
         avgLCP: { $avg: "$lcp" },
         avgDnsTime: { $avg: "$dnsTime" },
         avgConnectionTime: { $avg: "$connectionTime" },
@@ -105,11 +116,13 @@ fastify.get("/get-daily-avarage", async (request, reply) => {
   ];
 
   try {
-    const data = await performanceData
+    var decoded = jwt.verify(data.token, secret);
+    const dataPerf = await performanceData
       .aggregate(dailyAvaragePipeline)
       .toArray();
-    reply.send({ success: true, data });
+    reply.send({ success: true, dataPerf });
   } catch (err) {
+    console.log("decodedhata",err)
     reply
       .status(500)
       .send({ success: false, message: "Veri alınırken bir hata oluştu." });
@@ -119,12 +132,18 @@ fastify.get("/get-daily-avarage", async (request, reply) => {
 
 
 
-fastify.get("/get-weekly-average", async (request, reply) => {
+fastify.post("/get-weekly-average", async (request, reply) => {
   const db = await connectDatabase();
   const performanceData = db.collection("performance_metrics");
 
-
+  const data = request.body;
+console.log("data",data)
   const weeklyAveragePipeline = [
+    {
+      $match:{
+        queryString: data.code,
+      },
+    },
     {
       $group: {
         _id: {
@@ -153,12 +172,15 @@ fastify.get("/get-weekly-average", async (request, reply) => {
   ];
 
   try {
-    const data = await performanceData
+    var decoded = jwt.verify(data.token, secret);
+
+    const dataPerf = await performanceData
       .aggregate(weeklyAveragePipeline)
       .limit(24)
       .toArray();
-    reply.send({ success: true, data });
+    reply.send({ success: true, dataPerf });
   } catch (err) {
+    console.log("hata",err)
     reply
       .status(500)
       .send({ success: false, message: "Veri alınırken bir hata oluştu." });
@@ -225,7 +247,11 @@ fastify.post("/backend-login-endpoint", async (request, reply) => {
     const isPasswordValid =  await bcrypt.compare(password,user.password)
 
     if (isPasswordValid) {
-      reply.send({ success: true, message: "Giriş başarılı." });
+      const userJson = {
+        email:email
+      }
+      const token = jwt.sign(userJson,secret);
+      reply.status(200).send({ success: true, token:token});
     } else {
       reply.status(401).send({ success: false, message: "Şifre yanlış." });
     }
@@ -254,8 +280,15 @@ fastify.post('/performance_data/entities', async (request, reply) => {
   const data = request.body;
 
   try {
+    console.log("datatoken",data);
+    var decoded = jwt.verify(data.token, secret);
+    const entityJson = {
+     email : decoded.email,
+     url: data.url,
+     code : data.code
+    }
     // Veriyi veritabanına ekleyin
-    const result = await entities.insertOne(data);
+    const result = await entities.insertOne(entityJson);
     reply.status(201).send({ success: true, message: 'Veri başarıyla eklendi.' });
   } catch (error) {
     console.error('Veri eklenirken bir hata oluştu:', error);
@@ -263,8 +296,12 @@ fastify.post('/performance_data/entities', async (request, reply) => {
   }
 });
 
-fastify.get('/performance_data/entities', async (req, res) => {
+fastify.post('/performance_data/getentities', async (req, res) => {
   try {
+    const data = req.body;
+
+    var decoded = jwt.verify(data.token, secret);
+
     // MongoDB veritabanına bağlan
     const uri = 'mongodb://localhost:27017'; // MongoDB bağlantı adresi
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -275,7 +312,7 @@ fastify.get('/performance_data/entities', async (req, res) => {
     const collection = db.collection('entities'); // Koleksiyon adınızı buraya ekleyin
 
     // Tüm entities verilerini çekin
-    const entities = await collection.find({}).toArray();
+    const entities = await collection.find({email:decoded.email}).toArray();
 
     // Sonuçları JSON olarak yanıtla
     res.send(entities);
