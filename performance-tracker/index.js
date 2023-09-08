@@ -1,7 +1,7 @@
 const fastify = require("fastify")();
 const { MongoClient } = require("mongodb");
 const bcrypt = require('bcryptjs');
-const saltRounds = 10;
+const saltRounds = 1;
 async function connectDatabase() {
   const url = "mongodb://localhost:27017";
   const dbName = "performance_data";
@@ -164,20 +164,39 @@ fastify.get("/get-weekly-average", async (request, reply) => {
       .send({ success: false, message: "Veri alınırken bir hata oluştu." });
   }
 });
+
+
+// kullanıcı işlemleri
+
 const hashPassword = async (password) => {
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  return hashedPassword;
+  const salt = await bcrypt.genSalt(saltRounds); // Salt oluştur
+  const hashedPassword = await bcrypt.hash(password, salt); // Şifreyi ve salt'ı kullanarak hashle
+  return { hashedPassword, salt };
 };
 
-// users
+
 fastify.post("/backend-register-endpoint", async (request, reply) => {
   const db = await connectDatabase();
   const users = db.collection("users");
-  const userData = request.body; // Gelen verileri alın
+  const userData = request.body;
 
   try {
-    // Kullanıcıyı veritabanına eklemek için şifreyi hashleyin
-    userData.password = await hashPassword(userData.password);
+    // Kullanıcıyı veritabanına eklemek için önce e-posta adresinin veya kullanıcı adının kullanılıp kullanılmadığını kontrol edin
+    const existingUser = await users.findOne({
+      $or: [{ email: userData.email }, { username: userData.username }],
+    });
+
+    if (existingUser) {
+      if (existingUser.email === userData.email) {
+        reply.status(400).send({ success: false, message: "Bu e-posta adresi zaten kullanılıyor." });
+      } else if (existingUser.username === userData.username) {
+        reply.status(400).send({ success: false, message: "Bu kullanıcı adı zaten kullanılıyor." });
+      }
+      return;
+    }
+
+    const { hashedPassword, salt } = await hashPassword(userData.password);
+    userData.password = hashedPassword;
 
     const result = await users.insertOne(userData);
     reply.send({ success: true, message: "Kullanıcı başarıyla kaydedildi." });
@@ -185,41 +204,34 @@ fastify.post("/backend-register-endpoint", async (request, reply) => {
     reply.status(500).send({ success: false, message: "Kullanıcı kaydedilirken bir hata oluştu." });
   }
 });
-const comparePasswords = async (inputPassword, hashedPassword) => {
-  return await bcrypt.compare(inputPassword, hashedPassword);
-};
 
 
+
+// Kullanıcı girişi
 fastify.post("/backend-login-endpoint", async (request, reply) => {
   const db = await connectDatabase();
-  const usersCollection = db.collection("users");
+  const users = db.collection("users");
+  const { email, password } = request.body; // Kullanıcı adı ve gelen şifre
 
-  const { email, password } = request.body;
+  try {
+    // Kullanıcının veritabanındaki salt'ını ve hash'ini aldım
+    const user = await users.findOne({ email });
+    if (!user) {
+      reply.status(401).send({ success: false, message: "Kullanıcı bulunamadı." });
+      return;
+    }
 
-  const user = await usersCollection.findOne({ email });
+    // Girilen şifreyi ve salt'ı kullanarak veritabanındaki hash ile karşılaştırdım
+    const isPasswordValid =  await bcrypt.compare(password,user.password)
 
-  if (!user) {
-    reply.status(401).send({
-      success: false,
-      message: "Kullanıcı bulunamadı. Lütfen geçerli bir e-posta adresi ve şifre girin.",
-    });
-    return;
+    if (isPasswordValid) {
+      reply.send({ success: true, message: "Giriş başarılı." });
+    } else {
+      reply.status(401).send({ success: false, message: "Şifre yanlış." });
+    }
+  } catch (error) {
+    reply.status(500).send({ success: false, message: "Giriş yapılırken bir hata oluştu." });
   }
-
-  const passwordMatch = await comparePasswords(password, user.password);
-
-  if (!passwordMatch) {
-    reply.status(401).send({
-      success: false,
-      message: "Şifre yanlış. Lütfen geçerli bir e-posta adresi ve şifre girin.",
-    });
-    return;
-  }
-
-  reply.send({
-    success: true,
-    message: "Giriş başarılı.",
-  });
 });
 
 fastify.get("/get-users", async (request, reply) => {
@@ -231,6 +243,47 @@ fastify.get("/get-users", async (request, reply) => {
     reply.send({ success: true, users: userList });
   } catch (error) {
     reply.status(500).send({ success: false, message: "Kullanıcıları getirirken bir hata oluştu." });
+  }
+});
+
+
+// entities
+fastify.post('/performance_data/entities', async (request, reply) => {
+  const db = await connectDatabase();
+  const entities = db.collection('entities'); // Veritabanı koleksiyonunuzu ayarlayın
+  const data = request.body;
+
+  try {
+    // Veriyi veritabanına ekleyin
+    const result = await entities.insertOne(data);
+    reply.status(201).send({ success: true, message: 'Veri başarıyla eklendi.' });
+  } catch (error) {
+    console.error('Veri eklenirken bir hata oluştu:', error);
+    reply.status(500).send({ success: false, message: 'Veri eklenirken bir hata oluştu.' });
+  }
+});
+
+fastify.get('/performance_data/entities', async (req, res) => {
+  try {
+    // MongoDB veritabanına bağlan
+    const uri = 'mongodb://localhost:27017'; // MongoDB bağlantı adresi
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    await client.connect();
+
+    // Veritabanındaki "entities" koleksiyonunu seçin
+    const db = client.db('performance_data'); // Veritabanı adınızı buraya ekleyin
+    const collection = db.collection('entities'); // Koleksiyon adınızı buraya ekleyin
+
+    // Tüm entities verilerini çekin
+    const entities = await collection.find({}).toArray();
+
+    // Sonuçları JSON olarak yanıtla
+    res.send(entities);
+  } catch (error) {
+    console.error('Entities çekme hatası:', error);
+    res.status(500).send('Entities çekme hatası: ' + error.message);
+  } finally {
+    client.close(); // Veritabanı bağlantısını kapatın
   }
 });
 

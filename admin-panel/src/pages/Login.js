@@ -30,7 +30,7 @@ function Login() {
         }
       );
       if (response.ok) {
-        navigate("/home");
+        navigate("/properties");
       } else {
         const data = await response.json();
         alert(data.message);
@@ -54,7 +54,7 @@ function Login() {
 
       if (response.ok) {
         // Başarılı giriş durumunda başka bir sayfaya yönlendirin veya başka bir işlem yapın
-        navigate("/home");
+        navigate("/properties");
       } else {
         // Başarısız giriş durumunda hata mesajını gösterin
         const data = await response.json();
@@ -104,7 +104,7 @@ function Login() {
             <label
               style={{
                 color: "#fff",
-                fontSize: "40px",
+                fontSize: "32px",
                 justifyContent: "center",
                 display: "flex",
                 fontWeight: "bold",
@@ -141,8 +141,10 @@ function Login() {
           </form>
         </div>
 
-        <div className="login">
-          <form onSubmit={handleLogin}>
+        <div  className="login">
+          <form style={{
+          marginTop:'40px'
+        }} onSubmit={handleLogin}>
             <label
               style={{
                 color: "#573b8a",
@@ -168,7 +170,7 @@ function Login() {
             <input
               onChange={handleInputChange}
               type="password"
-              name="pswd"
+              name="password"
               placeholder="Password"
               required=""
             />

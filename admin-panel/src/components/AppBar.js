@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
+import styled from "styled-components";
 
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import Button from "@mui/material/Button";
 import zIndex from "@mui/material/styles/zIndex";
-import styled from "styled-components";
-import { Grid,Modal, Paper, Typography } from "@mui/material";
+import { Grid,Modal, Paper, Typography, Button } from "@mui/material";
 import Dropdown from "./DropDown/Dropdown";
+import { Link } from 'react-router-dom';
 
-const URLMenuItemContainer = styled.div`
-  border-radius: 8px;
-`;
-const MenuItemText = styled.p`
-  font-weight: medium;
-  text-align: center;
-  font-size: 16px;
-  color: #4e92da;
-  margin-left: 8px;
+const ButtonAdd = styled(Button)`
+&&&{
   font-family: Poppins;
-  font-weight: medium;
+
+  padding: 16px;
+  color: #ffff;
+  background-color: #b27de3;
+  text-transform: none;
+
+  &:hover {
+    background-color: #0E0B9B; 
+    cursor: pointer;
+  }
+
+}
+ 
 `;
+
 function generateRandomCode() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const codeLength = 8; // Kod uzunluğunu istediğiniz gibi ayarlayabilirsiniz
@@ -58,6 +64,10 @@ export default function ButtonAppBar() {
         alert('Kopyalama başarısız oldu. Lütfen manuel olarak kopyalayın: ' + uniqueCode);
       });
   };
+  const redirectToPropertiesPage = () => {
+
+    window.location.href = '/properties'; // Sayfayı yönlendir
+  };
   return (
     <div>
     <Box style={{ flexGrow: 1, backgroundColor: "#ffffff" }}>
@@ -75,28 +85,25 @@ export default function ButtonAppBar() {
           }}
         >
           <Grid alignItems={"center"} container>
-            <Grid item xs={9}>
-              {" "}
-              <img
+            <Grid item xs={10}>
+             <a href='/home' ><img
                 src="logo.jpg"
                 style={{
                   height: "56px",
                   marginLeft: "8px",
                 }}
-              />
+              /></a>
+              
             </Grid>
+            
             <Grid item xs={2}>
-              <Dropdown />
-              {/* <URLMenuItemContainer>
-                <MenuItemText >
-                  {" "}
-                  localhost:3000
-                </MenuItemText>
-              </URLMenuItemContainer> */}
+          
+        <ButtonAdd onClick={redirectToPropertiesPage} >Add Property</ButtonAdd>
+                {/* <Dropdown /> */}
+            
             </Grid>
-            <Grid item xs={1}>
-              <Button onClick={handleGenerateCode}>Mülk Ekle</Button>
-            </Grid>
+            
+         
           </Grid>
         </Toolbar>
       </AppBar>

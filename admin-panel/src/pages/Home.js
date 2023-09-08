@@ -143,7 +143,7 @@ console.log(performanceData);
             <Grid style={{
               marginTop:'64px'
             }} conainer>
-              <Title>Metric Values Change by Months</Title>
+              <Title>Metric Values Change by Weeks</Title>
               <GraphCard>
                 <StackedAreas fullData={performanceData} fieldLCP={"avgLCP"} />
               </GraphCard>
